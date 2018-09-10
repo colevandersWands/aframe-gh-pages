@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Origin Trial Token, feature = WebVR (For Chrome M59+), origin = https://aframe.io, expires = 2017-07-28 -->
+  <meta http-equiv="origin-trial" data-feature="WebVR (For Chrome M59+)" data-expires="2017-07-28" content="ArFv1ZeTwzkhjNE00uAE+XtiQB41fwqG/TqlFMLrepd9sforQSvQE/tgfIbUMYNuNre4QR1k4/z8xp2mV3dbhwwAAABeeyJvcmlnaW4iOiJodHRwczovL2FmcmFtZS5pbzo0NDMiLCJmZWF0dXJlIjoiV2ViVlIxLjEiLCJleHBpcnkiOjE1MDEyMTcwMDIsImlzU3ViZG9tYWluIjp0cnVlfQ==">
+    <meta charset="utf-8">
+    <title>Shaders</title>
+    <meta name="description" content="Shaders">
+    <script src="../../../dist/aframe-master.min.js"></script>
+    <script src="shaders/noise.js"></script>
+    <script src="shaders/sky.js"></script>
+  </head>
+  <body>
+    <script>
+      AFRAME.registerComponent('sun-position-setter', {
+        init: function () {
+          var skyEl = this.el;
+          var orbitEl = this.el.sceneEl.querySelector('#orbit');
+
+          orbitEl.addEventListener('componentchanged', function changeSun (evt) {
+            var sunPosition;
+            var phi;
+            var theta;
+
+            if (evt.detail.name !== 'rotation') { return; }
+
+            sunPosition = orbitEl.getAttribute('rotation');
+
+            if(sunPosition === null) { return; }
+
+            theta = Math.PI * (- 0.5);
+            phi = 2 * Math.PI * (sunPosition.y / 360 - 0.5);
+            skyEl.setAttribute('material', 'sunPosition', {
+              x: Math.cos(phi),
+              y: Math.sin(phi) * Math.sin(theta),
+              z: -1
+            });
+          });
+        }
+      });
+    </script>
+
+    <a-scene stats>
+      <a-entity id="sky" geometry="primitive: sphere; radius: 100;"
+                material="shader: sky; side: back" sun-position-setter>
+        <a-entity id="orbit">
+          <a-animation attribute="rotation" from="0 0 0" to="0 360 0" dur="5000"
+                       repeat="indefinite" easing="linear"></a-animation>
+        </a-entity>
+      </a-entity>
+
+      <a-entity geometry="primitive: sphere; radius: 3"
+                material="shader: noise" position="0 0 -10" rotation="45 45 0">
+      </a-entity>
+    </a-scene>
+  </body>
+</html>
